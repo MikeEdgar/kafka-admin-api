@@ -42,8 +42,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestProfile(TestPlainProfile.class)
 class ConsumerGroupsEndpointTestIT {
 
-    static final String CONSUMER_GROUP_COLLECTION_PATH = "/rest/consumer-groups";
-    static final String CONSUMER_GROUP_PATH = "/rest/consumer-groups/{groupId}";
+    static final String CONSUMER_GROUP_COLLECTION_PATH = "/api/v1/consumer-groups";
+    static final String CONSUMER_GROUP_PATH = "/api/v1/consumer-groups/{groupId}";
 
     @Inject
     Config config;
@@ -111,7 +111,7 @@ class ConsumerGroupsEndpointTestIT {
 //                .setTimeout(2000).setResetTimeout(3000).setMaxRetries(60)).retryPolicy(retryCount -> retryCount * 1000L);
 //        AtomicReference<Types.ConsumerGroupList> lastResp = new AtomicReference<>();
 //        breaker.executeWithFallback(promise -> {
-//            client.request(HttpMethod.GET, publishedAdminPort, "localhost", "/rest/consumer-groups")
+//            client.request(HttpMethod.GET, publishedAdminPort, "localhost", "/api/v1/consumer-groups")
 //                    .compose(req -> req.send().compose(HttpClientResponse::body))
 //                    .onComplete(testContext.succeeding(buffer -> testContext.verify(() -> {
 //                        Types.ConsumerGroupList response = MODEL_DESERIALIZER.deserializeResponse(buffer, Types.ConsumerGroupList.class);
@@ -199,7 +199,7 @@ class ConsumerGroupsEndpointTestIT {
 //    void testListConsumerGroupKafkaDown(Vertx vertx, VertxTestContext testContext, ExtensionContext extensionContext) throws Exception {
 //        HttpClient client = createHttpClient(vertx);
 //        deployments.stopKafkaContainer();
-//        client.request(HttpMethod.GET, publishedAdminPort, "localhost", "/rest/consumer-groups")
+//        client.request(HttpMethod.GET, publishedAdminPort, "localhost", "/api/v1/consumer-groups")
 //                .compose(req -> req.send().onComplete(l -> testContext.verify(() -> {
 //                    assertThat(testContext.failed()).isFalse();
 //                    if (l.succeeded()) {
@@ -273,7 +273,7 @@ class ConsumerGroupsEndpointTestIT {
 //
 //        HttpClient client = createHttpClient(vertx);
 //        deployments.stopKafkaContainer();
-//        client.request(HttpMethod.DELETE, publishedAdminPort, "localhost", "/rest/consumer-groups/" + groupdIds.get(0))
+//        client.request(HttpMethod.DELETE, publishedAdminPort, "localhost", "/api/v1/consumer-groups/" + groupdIds.get(0))
 //                .compose(req -> req.send().onComplete(l -> testContext.verify(() -> {
 //                    assertThat(testContext.failed()).isFalse();
 //                    if (l.succeeded()) {
@@ -316,7 +316,7 @@ class ConsumerGroupsEndpointTestIT {
 //
 //        HttpClient client = createHttpClient(vertx);
 //        deployments.stopKafkaContainer();
-//        client.request(HttpMethod.GET, publishedAdminPort, "localhost", "/rest/consumer-groups/" + groupdIds.get(0))
+//        client.request(HttpMethod.GET, publishedAdminPort, "localhost", "/api/v1/consumer-groups/" + groupdIds.get(0))
 //                .compose(req -> req.send().onComplete(l -> testContext.verify(() -> {
 //                    assertThat(testContext.failed()).isFalse();
 //                    if (l.succeeded()) {

@@ -14,6 +14,8 @@ public class HttpMetrics {
     private static final String HTTP_STATUS_CODE = "status_code";
     private static final String DEPRECATED_REQUESTS_COUNTER = "deprecated_requests";
     private static final String DEPRECATED_REQUESTS_PATH = "path";
+    private static final String DEPRECATED_REQUESTS_METHOD = "method";
+    private static final String DEPRECATED_REQUESTS_AGENT = "agent";
 
     @Inject
     PrometheusMeterRegistry meterRegistry;
@@ -31,7 +33,10 @@ public class HttpMetrics {
          * Status code 404 is a placeholder for defining the status_code label.
          */
         meterRegistry.counter(FAILED_REQUESTS_COUNTER, HTTP_STATUS_CODE, "404");
-        meterRegistry.counter(DEPRECATED_REQUESTS_COUNTER, DEPRECATED_REQUESTS_PATH, "/rest/openapi");
+        meterRegistry.counter(DEPRECATED_REQUESTS_COUNTER,
+                DEPRECATED_REQUESTS_PATH, "/rest/openapi",
+                DEPRECATED_REQUESTS_METHOD, "GET",
+                DEPRECATED_REQUESTS_AGENT, "None");
 
     }
 
@@ -55,7 +60,10 @@ public class HttpMetrics {
         return succeededRequestsCounter;
     }
 
-    public Counter getDeprecatedRequestCounter(String path) {
-        return getRegistry().counter(DEPRECATED_REQUESTS_COUNTER, DEPRECATED_REQUESTS_PATH, path);
+    public Counter getDeprecatedRequestCounter(String path, String method, String userAgent) {
+        return getRegistry().counter(DEPRECATED_REQUESTS_COUNTER,
+                DEPRECATED_REQUESTS_PATH, path,
+                DEPRECATED_REQUESTS_METHOD, method,
+                DEPRECATED_REQUESTS_AGENT, userAgent);
     }
 }

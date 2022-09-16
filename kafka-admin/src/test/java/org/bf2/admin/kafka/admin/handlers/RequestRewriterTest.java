@@ -1,6 +1,7 @@
 package org.bf2.admin.kafka.admin.handlers;
 
 import io.micrometer.core.instrument.Counter;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
 import org.bf2.admin.kafka.admin.HttpMetrics;
@@ -9,6 +10,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
+
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -32,7 +35,6 @@ class RequestRewriterTest {
 
         HttpMetrics httpMetrics = Mockito.mock(HttpMetrics.class);
         deprecatedCounter = mock(Counter.class);
-        when(httpMetrics.getDeprecatedRequestCounter(anyString())).thenReturn(deprecatedCounter);
 
         target = new RequestRewriter();
         target.httpMetrics = httpMetrics;
@@ -40,12 +42,21 @@ class RequestRewriterTest {
 
     @ParameterizedTest
     @CsvSource({
-        "/rest,                     /api/v1",
-        "/rest/openapi?format=JSON, /openapi?format=JSON",
-        "/rest/topics,              /api/v1/topics",
+        "GET,  /rest,                     /api/v1",
+        "GET,  /rest/openapi?format=JSON, /openapi?format=JSON",
+        "POST, /rest/topics,              /api/v1/topics",
     })
-    void testDeprecatedRequestsForwarded(String original, String forwarded) {
+    void testDeprecatedRequestsForwarded(String method, String original, String forwarded) {
+        String userAgent = UUID.randomUUID().toString();
+        String path = original.contains("?") ? original.substring(0, original.indexOf('?')) : original;
+
         when(request.uri()).thenReturn(original);
+        when(request.path()).thenReturn(path);
+        when(request.method()).thenReturn(HttpMethod.valueOf(method));
+        when(request.getHeader("User-Agent")).thenReturn(userAgent);
+
+        when(target.httpMetrics.getDeprecatedRequestCounter(path, method, userAgent))
+            .thenReturn(deprecatedCounter);
 
         target.filterRequest(context);
 

@@ -23,7 +23,10 @@ public class RequestRewriter {
         String requestUri = context.request().uri();
 
         if (requestUri.startsWith(REST)) {
-            httpMetrics.getDeprecatedRequestCounter(requestUri).increment();
+            httpMetrics.getDeprecatedRequestCounter(
+                    context.request().path(),
+                    context.request().method().name(),
+                    context.request().getHeader("User-Agent")).increment();
 
             String remainingPath = requestUri.substring(REST.length());
             String target = remainingPath.startsWith(OPENAPI) ? remainingPath : "/api/v1" + remainingPath;

@@ -71,7 +71,7 @@ class RestEndpointTestIT {
 //    void testTopicListWithKafkaDown(Vertx vertx, VertxTestContext testContext, ExtensionContext extensionContext) throws InterruptedException {
 //        HttpClient client = createHttpClient(vertx);
 //        deployments.stopKafkaContainer();
-//        client.request(HttpMethod.GET, publishedAdminPort, "localhost", "/rest/topics")
+//        client.request(HttpMethod.GET, publishedAdminPort, "localhost", "/api/v1/topics")
 //                .compose(req -> req.send().onComplete(l -> testContext.verify(() -> {
 //                    assertThat(testContext.failed()).isFalse();
 //                    if (l.succeeded()) {
@@ -358,7 +358,7 @@ class RestEndpointTestIT {
 //    @Test
 //    void testDescribeSingleTopicWithKafkaDown(Vertx vertx, VertxTestContext testContext, ExtensionContext extensionContext) throws Exception {
 //        final String topicName = UUID.randomUUID().toString();
-//        String queryReq = "/rest/topics/" + topicName;
+//        String queryReq = "/api/v1/topics/" + topicName;
 //        deployments.stopKafkaContainer();
 //
 //        createHttpClient(vertx).request(HttpMethod.GET, publishedAdminPort, "localhost", queryReq)
@@ -411,7 +411,7 @@ class RestEndpointTestIT {
 //        Types.NewTopic topic = RequestUtils.getTopicObject(3);
 //        deployments.stopKafkaContainer();
 //
-//        createHttpClient(vertx).request(HttpMethod.POST, publishedAdminPort, "localhost", "/rest/topics")
+//        createHttpClient(vertx).request(HttpMethod.POST, publishedAdminPort, "localhost", "/api/v1/topics")
 //                .compose(req -> req.putHeader("content-type", "application/json")
 //                        .send(MODEL_DESERIALIZER.serializeBody(topic)).onComplete(l -> testContext.verify(() -> {
 //                            if (l.succeeded()) {
@@ -550,7 +550,7 @@ class RestEndpointTestIT {
 //    @Test
 //    void testTopicDeleteWithKafkaDown(Vertx vertx, VertxTestContext testContext, ExtensionContext extensionContext) throws Exception {
 //        final String topicName = UUID.randomUUID().toString();
-//        String query = "/rest/topics/" + topicName;
+//        String query = "/api/v1/topics/" + topicName;
 //        deployments.stopKafkaContainer();
 //
 //        createHttpClient(vertx).request(HttpMethod.DELETE, publishedAdminPort, "localhost", query)
@@ -620,7 +620,7 @@ class RestEndpointTestIT {
 //        topic1.setConfig(Collections.singletonList(conf));
 //        deployments.stopKafkaContainer();
 //
-//        createHttpClient(vertx).request(HttpMethod.PATCH, publishedAdminPort, "localhost", "/rest/topics/" + topicName)
+//        createHttpClient(vertx).request(HttpMethod.PATCH, publishedAdminPort, "localhost", "/api/v1/topics/" + topicName)
 //                .compose(req -> req.putHeader("content-type", "application/json")
 //                        .send(MODEL_DESERIALIZER.serializeBody(topic1)).onSuccess(response -> {
 //                            if (response.statusCode() !=  ReturnCodes.KAFKA_DOWN.code) {

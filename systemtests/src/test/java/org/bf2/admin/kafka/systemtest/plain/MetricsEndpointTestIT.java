@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -148,6 +149,19 @@ class MetricsEndpointTestIT {
         assertMetricDiff(failedRequests.get("404"), preMetrics, postMetrics, "^failed_requests_total\\{.*status_code=\"404\"");
     }
 
+    @Test
+    void testListTopicDeprecatedMetrics() {
+        String userAgent = UUID.randomUUID().toString();
+        final int number = 3;
+        List<String> preMetrics = metricsUtils.getMetrics();
+
+        deprecatedGet(userAgent, "/rest/topics?filter=.*", number, Status.OK);
+        deprecatedGet(userAgent, "/rest/topics?filter=topic1", number, Status.OK);
+
+        List<String> postMetrics = metricsUtils.getMetrics();
+        assertMetricDiff(number * 2, preMetrics, postMetrics, "^deprecated_requests_total\\{.*agent=\"" + userAgent + "\",method=\"GET\",path=\"/rest/topics\"");
+    }
+
     void assertMetricDiff(int expectedDiff, List<String> preMetrics, List<String> postMetrics, String nameRegex) {
         int actualDiff = metricsUtils.getMetricDiff(preMetrics, postMetrics, nameRegex).intValueExact();
         assertEquals(expectedDiff, actualDiff,
@@ -161,7 +175,7 @@ class MetricsEndpointTestIT {
     void listTopics(int times, Status expectedStatus) {
         IntStream.range(0, times).forEach(i ->
             when()
-                .get("/rest/topics")
+                .get("/api/v1/topics")
             .then()
                 .log().ifValidationFails()
                 .statusCode(expectedStatus.getStatusCode()));
@@ -173,7 +187,7 @@ class MetricsEndpointTestIT {
                 .body(buildTopicRequest(name, numPartitions, Map.of("min.insync.replicas", "1")).toString())
                 .contentType(ContentType.JSON)
                 .log().ifValidationFails()
-                .post("/rest/topics")
+                .post("/api/v1/topics")
             .then()
                 .log().ifValidationFails()
                 .statusCode(expectedStatus.getStatusCode());
@@ -184,7 +198,7 @@ class MetricsEndpointTestIT {
         names.forEach(name -> {
             given()
                 .log().ifValidationFails()
-                .get("/rest/topics/" + name)
+                .get("/api/v1/topics/" + name)
             .then()
                 .log().ifValidationFails()
                 .statusCode(expectedStatus.getStatusCode());
@@ -197,7 +211,7 @@ class MetricsEndpointTestIT {
                 .body(buildTopicRequest(name, 6, Map.of("min.insync.replicas", "2")).toString())
                 .contentType(ContentType.JSON)
                 .log().ifValidationFails()
-                .patch("/rest/topics/" + name)
+                .patch("/api/v1/topics/" + name)
             .then()
                 .log().ifValidationFails()
                 .statusCode(Status.OK.getStatusCode());
@@ -208,11 +222,21 @@ class MetricsEndpointTestIT {
         names.forEach(name -> {
             given()
                 .log().ifValidationFails()
-                .delete("/rest/topics/" + name)
+                .delete("/api/v1/topics/" + name)
             .then()
                 .log().ifValidationFails()
                 .statusCode(expectedStatus.getStatusCode());
         });
+    }
+
+    void deprecatedGet(String userAgent, String uri, int times, Status expectedStatus) {
+        IntStream.range(0, times).forEach(i ->
+            given()
+                .header("user-agent", userAgent)
+                .get(uri)
+            .then()
+                .log().ifValidationFails()
+                .statusCode(expectedStatus.getStatusCode()));
     }
 
     JsonObject buildTopicRequest(String name, int numPartitions, Map<String, String> config) {
